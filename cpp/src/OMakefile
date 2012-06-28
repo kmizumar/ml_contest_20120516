@@ -70,11 +70,11 @@ CXXFILES[] =
    solvers
    specialfunctions
    statistics
-   train
 
-MAIN = train
+CXXProgram(train, train $(CXXFILES))
+CXXProgram(eval, eval dfdump-050-1 $(CXXFILES))
 
-.DEFAULT: $(CXXProgram $(MAIN), $(CXXFILES))
+.DEFAULT: train eval
 
 ################################################
 # Uncomment the following section if you want to build a C library
