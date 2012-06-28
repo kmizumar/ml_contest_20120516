@@ -13,15 +13,25 @@ using namespace alglib;
 #define pb(e) push_back(e)
 #define mp(a, b) make_pair(a, b)
 
+extern const char *dfdump_050_1[];
+
 int main(int argc, char *argv[]) {
+  decisionforest df; string dfs;
+  for (int i=0; dfdump_050_1[i]; ++i) dfs.append(dfdump_050_1[i]);
+  dfunserialize(dfs, df);
   FILE *fp;
-  if (argc != 2 || (fp = fopen(argv[1], "r")) == NULL) return -1;
-  int v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18;
-  int rows=0;
-  vector<double> sample;
-  while (fscanf(fp, " %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",
-                &v1, &v2, &v3, &v4, &v5, &v6, &v7, &v8, &v9, &v10, &v11, &v12, &v13, &v14, &v15, &v16, &v17, &v18) == 18) {
-    if (v1 < 14) continue;
+  if (argc != 3 || (fp = fopen(argv[2], "r")) == NULL) {
+    fprintf(stderr, "cannot open %s\n", argv[2]);
+    return -1;
+  }
+  int v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17;
+  while (fscanf(fp, " %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",
+                &v1, &v2, &v3, &v4, &v5, &v6, &v7, &v8, &v9, &v10, &v11, &v12, &v13, &v14, &v15, &v16, &v17) == 17) {
+    if (v1 < 14) {
+      printf("0\n");
+      continue;
+    }
+    vector<double> sample;
     #define nominal(C,V) sample.pb((C)==(V) ? 1.0 : 0.0)
     sample.pb((double) v1);     // Age
     nominal(v2, 2);             // Make:Female
@@ -259,29 +269,14 @@ int main(int argc, char *argv[]) {
     nominal(v17, 50);           // Walked only
     nominal(v17, 60);           // Other
     nominal(v17, 70);           // Worked at home
-    sample.pb((double) v18);    // Annual salary
+//    sample.pb((double) v18);    // Annual salary
     #undef nominal
-    ++rows;
+    int cols = sample.size();
+    real_1d_array x, y;
+    x.setcontent(cols, &sample[0]);
+    dfprocess(df, x, y);
+    printf("%d\n", (int) ceil(y[0]));
   }
   fclose(fp);
-  int cols = sample.size() / rows;
-  real_2d_array xy;
-  xy.setcontent(rows, cols, &sample[0]);
-  decisionforest df;
-  dfreport rep;
-  ae_int_t info;
-  for (int n=50; n<=100; n++) {
-    for (int r=1; r<=6; r++) {
-      double r_ = 0.11 * r;
-      dfbuildrandomdecisionforest(xy, rows, cols-1, 1, n, r_, info, df, rep);
-      string dfs;
-      dfserialize(df, dfs);
-      char name[1024];
-      sprintf(name, "dfdump-%03d-%d", n, r);
-      fp = fopen(name, "w");
-      fprintf(fp, "%s\n", dfs.c_str());
-      fclose(fp);
-    }
-  }
   return 0;
 }

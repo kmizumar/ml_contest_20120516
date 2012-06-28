@@ -73,8 +73,9 @@ CXXFILES[] =
 
 CXXProgram(train, train $(CXXFILES))
 CXXProgram(eval, eval dfdump-050-1 $(CXXFILES))
+CXXProgram(solve, solve dfdump-050-1 $(CXXFILES))
 
-.DEFAULT: train eval
+.DEFAULT: train eval solve
 
 ################################################
 # Uncomment the following section if you want to build a C library

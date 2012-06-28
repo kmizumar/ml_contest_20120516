@@ -20,14 +20,14 @@ int main(int argc, char *argv[]) {
   for (int i=0; dfdump_050_1[i]; ++i) dfs.append(dfdump_050_1[i]);
   dfunserialize(dfs, df);
   FILE *fp;
-  if (argc != 2 || (fp = fopen(argv[1], "r")) == NULL ) return -1;
+  if (argc != 2 || (fp = fopen(argv[1], "r")) == NULL) return -1;
   int v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18;
   int rows=0;
   vector<double> sample;
   while (fscanf(fp, " %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",
                 &v1, &v2, &v3, &v4, &v5, &v6, &v7, &v8, &v9, &v10, &v11, &v12, &v13, &v14, &v15, &v16, &v17, &v18) == 18) {
     if (v1 < 14) continue;
-    #define nominal(C,V) sample.push_back((C)==(V) ? 1.0 : 0.0)
+    #define nominal(C,V) sample.pb((C)==(V) ? 1.0 : 0.0)
     sample.pb((double) v1);     // Age
     nominal(v2, 2);             // Make:Female
     nominal(v3, 1);             // White
