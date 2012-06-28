@@ -21,10 +21,11 @@
     (call-with-input-file name
       (^p (generator-for-each
            (^[line] (unless (zero? (string-length line))
-                      (format out "\"~a\",~%" line)))
+                      (format out "\"~a\\n\",~%" line)))
            (^[] (read-line p))))
       :if-does-not-exist :error)
-    (p "};")))
+    (p "0 // sentinel"
+       "};")))
 
 ;; Entry point
 (define (main args)
