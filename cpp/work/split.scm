@@ -17,7 +17,7 @@
 
 (define (split-file in ratio out0 out1)
   (let1 m (make <mersenne-twister> :seed (sys-time))
-    (port-for-each
+    (generator-for-each
      (^[line]
        (format (if (< (mt-random-real m) ratio) out0 out1) "~a~%" line))
      (^[] (read-line in))))
