@@ -1,4 +1,4 @@
-#!/usr/bin/gosh
+#!/usr/bin/env gosh
 
 (use gauche.parseopt)
 (use math.mt-random)
