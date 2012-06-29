@@ -1,0 +1,6 @@
+OMakefile.omc
+OMakeroot.omc
+.omakedb
+.omakedb.lock
+
+solve
