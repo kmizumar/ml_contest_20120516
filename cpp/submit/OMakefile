@@ -57,7 +57,6 @@ CXXFLAGS += -g
 #
 
 CXXFILES[] =
-   dfdump-050-1
    solve
 
 MAIN = solve
