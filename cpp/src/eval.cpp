@@ -13,14 +13,21 @@ using namespace alglib;
 #define pb(e) push_back(e)
 #define mp(a, b) make_pair(a, b)
 
-extern const char *dfdump_050_1[];
+void usage(const char* prog) {
+  printf("%s df csv\n", prog);
+  exit(-1);
+}
 
 int main(int argc, char *argv[]) {
-  decisionforest df; string dfs;
-  for (int i=0; dfdump_050_1[i]; ++i) dfs.append(dfdump_050_1[i]);
-  dfunserialize(dfs, df);
   FILE *fp;
-  if (argc != 2 || (fp = fopen(argv[1], "r")) == NULL) return -1;
+  if (argc != 3 || (fp = fopen(argv[1], "r")) == NULL) usage(argv[0]);
+  decisionforest df; string dfs;
+  char buf[256], c;
+  while (fscanf(fp, "%[^\n]", buf) == 1 && fscanf(fp, "%c", &c) == 1)
+    dfs.append(buf);
+  dfunserialize(dfs, df);
+  fclose(fp);
+  if ((fp = fopen(argv[2], "r")) == NULL) usage(argv[0]);
   int v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18;
   int rows=0;
   vector<double> sample;
