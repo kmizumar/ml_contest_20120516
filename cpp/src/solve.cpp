@@ -15,12 +15,18 @@ using namespace alglib;
 
 extern const char *dfdump_050_1[];
 
+void usage(const char *prog) {
+  printf("%s train target\n", prog);
+  exit(-1);
+}
+
 int main(int argc, char *argv[]) {
   decisionforest df; string dfs;
   for (int i=0; dfdump_050_1[i]; ++i) dfs.append(dfdump_050_1[i]);
   dfunserialize(dfs, df);
+  if (argc != 3) usage(argv[0]);
   FILE *fp;
-  if (argc != 3 || (fp = fopen(argv[2], "r")) == NULL) {
+  if ((fp = fopen(argv[2], "r")) == NULL) {
     fprintf(stderr, "cannot open %s\n", argv[2]);
     return -1;
   }

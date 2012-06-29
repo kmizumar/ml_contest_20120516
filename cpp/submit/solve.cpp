@@ -976,7 +976,7 @@ static ae_int_t _ae_char2sixbits_tbl[] = {
     59, 60, 61, -1, -1, -1, -1, -1 };
 ae_int_t ae_char2sixbits(char c)
 {
-    return (c>=0 && c<127) ? _ae_char2sixbits_tbl[c] : -1;
+    return (c>=0 && c<127) ? _ae_char2sixbits_tbl[(unsigned) c] : -1;
 }
 
 void ae_foursixbits2threebytes(const ae_int_t *src, unsigned char *dst)
@@ -1026,7 +1026,7 @@ ae_int_t ae_str2int(const char *buf, ae_state *state, const char **pasttheend)
     ae_foursixbits2threebytes(sixbits+8, u.bytes+6);
     if( state->endianness==AE_BIG_ENDIAN )
     {
-        for(i=0; i<sizeof(ae_int_t)/2; i++)
+        for(i=0; i<(int) sizeof(ae_int_t)/2; i++)
         {
             unsigned char tc;
             tc = u.bytes[i];
@@ -1109,7 +1109,7 @@ double ae_str2double(const char *buf, ae_state *state, const char **pasttheend)
     ae_foursixbits2threebytes(sixbits+8, u.bytes+6);
     if( state->endianness==AE_BIG_ENDIAN )
     {
-        for(i=0; i<sizeof(double)/2; i++)
+        for(i=0; i<(int) sizeof(double)/2; i++)
         {
             unsigned char tc;
             tc = u.bytes[i];
@@ -1278,61 +1278,11 @@ typedef struct
 } decisionforest;
 
 static ae_int_t dforest_innernodewidth = 3;
-static ae_int_t dforest_leafnodewidth = 2;
-static ae_int_t dforest_dfusestrongsplits = 1;
-static ae_int_t dforest_dfuseevs = 2;
 static ae_int_t dforest_dffirstversion = 0;
-static ae_int_t dforest_dfclserror(decisionforest* df,
-     /* Real    */ ae_matrix* xy,
-     ae_int_t npoints,
-     ae_state *_state);
 static void dforest_dfprocessinternal(decisionforest* df,
      ae_int_t offs,
      /* Real    */ ae_vector* x,
      /* Real    */ ae_vector* y,
-     ae_state *_state);
-static void dforest_dfbuildtree(/* Real    */ ae_matrix* xy,
-     ae_int_t npoints,
-     ae_int_t nvars,
-     ae_int_t nclasses,
-     ae_int_t nfeatures,
-     ae_int_t nvarsinpool,
-     ae_int_t flags,
-     dfinternalbuffers* bufs,
-     ae_state *_state);
-static void dforest_dfbuildtreerec(/* Real    */ ae_matrix* xy,
-     ae_int_t npoints,
-     ae_int_t nvars,
-     ae_int_t nclasses,
-     ae_int_t nfeatures,
-     ae_int_t nvarsinpool,
-     ae_int_t flags,
-     ae_int_t* numprocessed,
-     ae_int_t idx1,
-     ae_int_t idx2,
-     dfinternalbuffers* bufs,
-     ae_state *_state);
-static void dforest_dfsplitc(/* Real    */ ae_vector* x,
-     /* Integer */ ae_vector* c,
-     /* Integer */ ae_vector* cntbuf,
-     ae_int_t n,
-     ae_int_t nc,
-     ae_int_t flags,
-     ae_int_t* info,
-     double* threshold,
-     double* e,
-     /* Real    */ ae_vector* sortrbuf,
-     /* Integer */ ae_vector* sortibuf,
-     ae_state *_state);
-static void dforest_dfsplitr(/* Real    */ ae_vector* x,
-     /* Real    */ ae_vector* y,
-     ae_int_t n,
-     ae_int_t flags,
-     ae_int_t* info,
-     double* threshold,
-     double* e,
-     /* Real    */ ae_vector* sortrbuf,
-     /* Real    */ ae_vector* sortrbuf2,
      ae_state *_state);
 
 ae_bool _decisionforest_init(decisionforest* p, ae_state *_state, ae_bool make_automatic)
@@ -1502,22 +1452,22 @@ public:
     static void make_assertion(bool bClause, const char *msg);
 private:
 };
-alglib::ap_error::ap_error()
+ap_error::ap_error()
 {
 }
 
-alglib::ap_error::ap_error(const char *s)
+ap_error::ap_error(const char *s)
 {
     msg = s; 
 }
 
-void alglib::ap_error::make_assertion(bool bClause)
+void ap_error::make_assertion(bool bClause)
 {
     if(!bClause) 
         throw ap_error(); 
 }
 
-void alglib::ap_error::make_assertion(bool bClause, const char *msg)
+void ap_error::make_assertion(bool bClause, const char *msg)
 { 
     if(!bClause) 
         throw ap_error(msg); 
@@ -1561,18 +1511,18 @@ public:
 
     std::string tostring(int dps) const;
 };
-alglib::ae_vector_wrapper::ae_vector_wrapper()
+ae_vector_wrapper::ae_vector_wrapper()
 {
     p_vec = NULL;
 }
 
-alglib::ae_vector_wrapper::~ae_vector_wrapper()
+ae_vector_wrapper::~ae_vector_wrapper()
 {
     if( p_vec==&vec )
         ae_vector_clear(p_vec);
 }
 
-alglib::ae_vector_wrapper::ae_vector_wrapper(const alglib::ae_vector_wrapper &rhs)
+ae_vector_wrapper::ae_vector_wrapper(const alglib::ae_vector_wrapper &rhs)
 {
     if( rhs.p_vec!=NULL )
     {
@@ -1584,7 +1534,7 @@ alglib::ae_vector_wrapper::ae_vector_wrapper(const alglib::ae_vector_wrapper &rh
         p_vec = NULL;
 }
 
-const alglib::ae_vector_wrapper& alglib::ae_vector_wrapper::operator=(const alglib::ae_vector_wrapper &rhs)
+const ae_vector_wrapper& alglib::ae_vector_wrapper::operator=(const alglib::ae_vector_wrapper &rhs)
 {
     if( this==&rhs )
         return *this;
@@ -1601,7 +1551,7 @@ const alglib::ae_vector_wrapper& alglib::ae_vector_wrapper::operator=(const algl
     return *this;
 }
 
-void alglib::ae_vector_wrapper::setlength(ae_int_t iLen)
+void ae_vector_wrapper::setlength(ae_int_t iLen)
 {
     if( p_vec==NULL )
         throw alglib::ap_error("ALGLIB: setlength() error, p_vec==NULL (array was not correctly initialized)");
@@ -1611,14 +1561,14 @@ void alglib::ae_vector_wrapper::setlength(ae_int_t iLen)
         throw alglib::ap_error("ALGLIB: malloc error");
 }
 
-alglib::ae_int_t alglib::ae_vector_wrapper::length() const
+ae_int_t ae_vector_wrapper::length() const
 {
     if( p_vec==NULL )
         return 0;
     return p_vec->cnt;
 }
 
-void alglib::ae_vector_wrapper::attach_to(alglib_impl::ae_vector *ptr)
+void ae_vector_wrapper::attach_to(alglib_impl::ae_vector *ptr)
 {
     if( ptr==&vec )
         throw alglib::ap_error("ALGLIB: attempt to attach vector to itself");
@@ -1627,7 +1577,7 @@ void alglib::ae_vector_wrapper::attach_to(alglib_impl::ae_vector *ptr)
     p_vec = ptr;
 }
 
-void alglib::ae_vector_wrapper::allocate_own(ae_int_t size, alglib_impl::ae_datatype datatype)
+void ae_vector_wrapper::allocate_own(ae_int_t size, alglib_impl::ae_datatype datatype)
 {
     if( p_vec==&vec )
         ae_vector_clear(p_vec);
@@ -1635,12 +1585,12 @@ void alglib::ae_vector_wrapper::allocate_own(ae_int_t size, alglib_impl::ae_data
     if( !ae_vector_init(p_vec, size, datatype, NULL, false) )
         throw alglib::ap_error("ALGLIB: malloc error");
 }
-const alglib_impl::ae_vector* alglib::ae_vector_wrapper::c_ptr() const
+const alglib_impl::ae_vector* ae_vector_wrapper::c_ptr() const
 {
     return p_vec;
 }
 
-alglib_impl::ae_vector* alglib::ae_vector_wrapper::c_ptr()
+alglib_impl::ae_vector* ae_vector_wrapper::c_ptr()
 {
     return p_vec;
 }
@@ -2032,18 +1982,18 @@ std::string arraytostring(const double *ptr, ae_int_t n, int _dps)
     return result;
 }
 
-alglib::real_1d_array::real_1d_array()  
+real_1d_array::real_1d_array()  
 {
     allocate_own(0, alglib_impl::DT_REAL);
 }
 
-alglib::real_1d_array::real_1d_array(alglib_impl::ae_vector *p)  
+real_1d_array::real_1d_array(alglib_impl::ae_vector *p)  
 {
     p_vec = NULL;
     attach_to(p);
 }
 
-alglib::real_1d_array::real_1d_array(const char *s)  
+real_1d_array::real_1d_array(const char *s)  
 {
     std::vector<const char*> svec;
     size_t i;
@@ -2063,31 +2013,31 @@ alglib::real_1d_array::real_1d_array(const char *s)
     }
 }
 
-alglib::real_1d_array::~real_1d_array() 
+real_1d_array::~real_1d_array() 
 {
 }
 
-const double& alglib::real_1d_array::operator()(ae_int_t i) const
-{
-    return p_vec->ptr.p_double[i];
-}
-
-double& alglib::real_1d_array::operator()(ae_int_t i)
+const double& real_1d_array::operator()(ae_int_t i) const
 {
     return p_vec->ptr.p_double[i];
 }
 
-const double& alglib::real_1d_array::operator[](ae_int_t i) const
+double& real_1d_array::operator()(ae_int_t i)
 {
     return p_vec->ptr.p_double[i];
 }
 
-double& alglib::real_1d_array::operator[](ae_int_t i)
+const double& real_1d_array::operator[](ae_int_t i) const
 {
     return p_vec->ptr.p_double[i];
 }
 
-void alglib::real_1d_array::setcontent(ae_int_t iLen, const double *pContent )
+double& real_1d_array::operator[](ae_int_t i)
+{
+    return p_vec->ptr.p_double[i];
+}
+
+void real_1d_array::setcontent(ae_int_t iLen, const double *pContent )
 {
     ae_int_t i;
     setlength(iLen);
@@ -2095,16 +2045,16 @@ void alglib::real_1d_array::setcontent(ae_int_t iLen, const double *pContent )
         p_vec->ptr.p_double[i] = pContent[i];
 }
 
-double* alglib::real_1d_array::getcontent()
+double* real_1d_array::getcontent()
 {
     return p_vec->ptr.p_double;
 }
 
-const double* alglib::real_1d_array::getcontent() const
+const double* real_1d_array::getcontent() const
 {
     return p_vec->ptr.p_double;
 }
-std::string alglib::real_1d_array::tostring(int dps) const 
+std::string real_1d_array::tostring(int dps) const 
 {
     if( length()==0 )
         return "[]";
@@ -2255,12 +2205,18 @@ using namespace alglib;
 
 extern const char *dfdump_050_1[];
 
+void usage(const char *prog) {
+  printf("%s train target\n", prog);
+  exit(-1);
+}
+
 int main(int argc, char *argv[]) {
   decisionforest df; string dfs;
   for (int i=0; dfdump_050_1[i]; ++i) dfs.append(dfdump_050_1[i]);
   dfunserialize(dfs, df);
+  if (argc != 3) usage(argv[0]);
   FILE *fp;
-  if (argc != 3 || (fp = fopen(argv[2], "r")) == NULL) {
+  if ((fp = fopen(argv[2], "r")) == NULL) {
     fprintf(stderr, "cannot open %s\n", argv[2]);
     return -1;
   }
