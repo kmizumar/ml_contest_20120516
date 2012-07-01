@@ -48,7 +48,7 @@
 # CFLAGS +=
 CXXFLAGS += -g
 # ASFLAGS +=
-# LDFLAGS +=
+LDFLAGS += -lz
 # INCLUDES +=
 
 ################################################
@@ -72,10 +72,11 @@ CXXFILES[] =
    statistics
 
 CXXProgram(train, train $(CXXFILES))
-CXXProgram(eval, eval dfdump-050-1 $(CXXFILES))
+CXXProgram(eval, eval $(CXXFILES))
 CXXProgram(solve, solve dfdump-050-1 $(CXXFILES))
+CXXProgram(zstring, zstring)
 
-.DEFAULT: train eval solve
+.DEFAULT: train eval solve zstring
 
 ################################################
 # Uncomment the following section if you want to build a C library

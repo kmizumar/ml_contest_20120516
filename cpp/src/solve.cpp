@@ -1,3 +1,4 @@
+#include <zlib.h>
 #include <cstdio>
 #include <vector>
 #include "ap.h"
@@ -13,17 +14,38 @@ using namespace alglib;
 #define pb(e) push_back(e)
 #define mp(a, b) make_pair(a, b)
 
-extern const char *dfdump_050_1[];
+extern const char *dfdump_73_37_z[];
 
 void usage(const char *prog) {
   printf("%s train target\n", prog);
   exit(-1);
 }
 
+char c2(char n0, char n1) {
+  char v;
+  if (n0 >= '0' && n0 <= '9') v = (n0 - '0') << 4;
+  else                        v = (n0 - 'a' + 10) << 4;
+  if (n1 >= '0' && n1 <= '9') v |= (n1 - '0');
+  else                        v |= (n1 - 'a' + 10);
+  return v;
+}
+
 int main(int argc, char *argv[]) {
-  decisionforest df; string dfs;
-  for (int i=0; dfdump_050_1[i]; ++i) dfs.append(dfdump_050_1[i]);
+  string dfs;
+  for (int i=0; dfdump_73_37_z[i]; ++i) dfs.append(dfdump_73_37_z[i]);
+  const uLong sourceLen = dfs.size() / 2;
+  char *buf = (char *) malloc(sourceLen);
+  rep (i, sourceLen) buf[i] = c2(dfs[i * 2], dfs[i * 2 + 1]);
+  uLong destLen = 200000000;    // should be > 197968498
+  Bytef *dest = (Bytef *) malloc(destLen);
+  uncompress(dest, &destLen, (Bytef *) buf, sourceLen);
+  dest[destLen] = '\0';
+  decisionforest df;
+  dfs.clear();
+  dfs.append((const char*) dest);
   dfunserialize(dfs, df);
+  free(buf);
+  free(dest);
   if (argc != 3) usage(argv[0]);
   FILE *fp;
   if ((fp = fopen(argv[2], "r")) == NULL) {

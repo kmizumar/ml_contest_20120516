@@ -270,18 +270,18 @@ int main(int argc, char *argv[]) {
   decisionforest df;
   dfreport rep;
   ae_int_t info;
-  for (int n=50; n<=100; n++) {
-    for (int r=1; r<=6; r++) {
-      double r_ = 0.11 * r;
-      dfbuildrandomdecisionforest(xy, rows, cols-1, 1, n, r_, info, df, rep);
+//  for (int n=50; n<=100; n++) {
+//    for (int r=1; r<=6; r++) {
+//      double r_ = 0.11 * r;
+      dfbuildrandomdecisionforest(xy, rows, cols-1, 1, 73, 0.37, info, df, rep);
       string dfs;
       dfserialize(df, dfs);
-      char name[1024];
-      sprintf(name, "dfdump-%03d-%d", n, r);
-      fp = fopen(name, "w");
+//      char name[1024];
+//      sprintf(name, "dfdump-%03d-%d", n, r);
+      fp = fopen("dfdump_73_37", "w");
       fprintf(fp, "%s\n", dfs.c_str());
       fclose(fp);
-    }
-  }
+//    }
+//  }
   return 0;
 }
